@@ -9,8 +9,7 @@ const Login = () => {
 
     // Redireciona para a tela HOME
     const handleEntrar = () => {
-        router.push('/(tabs)/home'); 
-    }
+        router.push('/(tabs)/home');   }
     
     // Redireciona para a tela REGISTER
     const handleRegister = () => {

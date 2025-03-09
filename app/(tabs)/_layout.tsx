@@ -1,9 +1,17 @@
 import React, { useState, useCallback } from "react";
 import { Stack } from "expo-router";
-import {  View,  Text,  TouchableOpacity,  Image,  StyleSheet,  Linking,} from "react-native";
+import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient"; 
 
+/* INTERFACES */
+interface HeaderProps {
+  onToggleMenu: () => void;  // Função que não retorna nada
+}
+
+interface FooterProps {
+  onWhatsAppPress: () => void;  // Função que não retorna nada
+}
 
 export default function Layout() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -30,7 +38,7 @@ export default function Layout() {
 
       {/* CONTEÚDO PRINCIPAL */}
       <View style={styles.content}>
-        <Stack />
+        <Stack screenOptions={{ headerShown: false }} /> {/* Desabilita o header da navegação */}
       </View>
 
       {/* FOOTER */}
@@ -42,7 +50,7 @@ export default function Layout() {
 /* COMPONENTES SEPARADOS */
 
 // Header
-const Header = ({ onToggleMenu }) => (
+const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
   <LinearGradient colors={["red", "#F9d428"]} style={styles.header}>
     <Image
       source={require("../../assets/images/LogoJapastel.png")}
@@ -58,26 +66,25 @@ const Header = ({ onToggleMenu }) => (
 // Menu Dropdown
 const MenuDropdown = () => (
   <View style={styles.menuDropdown}>
-    {["Início", "Cardápio", "Pedidos", "Programa de Fidelização"].map(
-      (item, index) => (
-        <TouchableOpacity key={index} onPress={() => alert(`Ir para ${item}`)}>
-          <Text style={styles.menuItem}>{item}</Text>
-        </TouchableOpacity>
-      )
-    )}
+    {["Início", "Cardápio", "Pedidos"].map((item, index) => (
+      <TouchableOpacity key={index} onPress={() => alert(`Ir para ${item}`)}>
+        <Text style={styles.menuItem}>{item}</Text>
+      </TouchableOpacity>
+    ))}
   </View>
-);
+);   
 
 // Footer
-const Footer = ({ onWhatsAppPress }) => (
+const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
   <View style={styles.footer}>
-    <Text style={styles.footerText}>Dúvidas? Nos chame no WhatsApp</Text>
+    <Text style={styles.footerText}> Dúvidas? Nos chame no WhatsApp </Text>
     <TouchableOpacity onPress={onWhatsAppPress} style={styles.whatsAppButton}>
       <FontAwesome name="whatsapp" size={30} color="#25D366" />
     </TouchableOpacity>
     <MaterialIcons name="delivery-dining" size={30} color="red" style={{ marginLeft: 15 }} />
   </View>
 );
+  
 
 /* ESTILOS */
 const styles = StyleSheet.create({
@@ -137,4 +144,3 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 });
-

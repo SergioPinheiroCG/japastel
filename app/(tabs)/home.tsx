@@ -1,16 +1,17 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, Animated } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 // Lista de produtos
 const produtos = [
-  { id: '1', nome: 'Pastel de Queijo', descricao: 'Pastel frito com recheio de queijo', preco: 'R$ 16,00', imagem: require('../../assets/images/pastel_queijo.png') },
-  { id: '2', nome: 'Pastel de Camarão', descricao: 'Pastel frito com recheio de camarão', preco: 'R$ 18,00', imagem: require('../../assets/images/pastel_camarao.png') },
-  { id: '3', nome: 'Pastel de FranPiry', descricao: 'Pastel frito com frango desfiado e catupiry', preco: 'R$ 16,00', imagem: require('../../assets/images/pastel_franpiry.png') },
-  { id: '4', nome: 'Pastel de Carne', descricao: 'Pastel frito com carne moída e bacon', preco: 'R$ 16,00', imagem: require('../../assets/images/pastel_carne.png') },
-  { id: '5', nome: 'Refrigerantes', descricao: 'Melão, Mirtilo, Morango, Original, Laranja', preco: 'R$ 25,00', imagem: require('../../assets/images/refrigerante.png') },
-  { id: '6', nome: 'Coca-Cola', descricao: 'Feito a partir de água gaseificada, açúcar, extrato de noz de cola e cafeína', preco: 'R$ 8,00', imagem: require('../../assets/images/coca.png') },
-  { id: '7', nome: 'Guarana', descricao: 'Água gaseificada, açúcar, semente de guaraná, aroma natural de guaraná', preco: 'R$ 8,00', imagem: require('../../assets/images/guarana.png') },
+  { id: '1', imagem: require('../../assets/images/pastel_queijo.png') },
+  { id: '2', imagem: require('../../assets/images/pastel_camarao.png') },
+  { id: '3', imagem: require('../../assets/images/pastel_franpiry.png') },
+  { id: '4', imagem: require('../../assets/images/pastel_carne.png') },
+  { id: '5', imagem: require('../../assets/images/refrigerante.png') },
+  { id: '6', imagem: require('../../assets/images/coca.png') },
+  { id: '7', imagem: require('../../assets/images/guarana.png') },
 ];
 
 // Postagens de clientes
@@ -24,11 +25,6 @@ const depoimentos = [
 const ProdutoItem = ({ item }) => (
   <View style={styles.itemCard}>
     <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
-    <View style={styles.itemInfo}>
-      <Text style={styles.itemName}>{item.nome}</Text>
-      <Text style={styles.itemDescription}>{item.descricao}</Text>
-      <Text style={styles.itemPrice}>{item.preco}</Text>
-    </View>
     <TouchableOpacity style={styles.cartButton}>
       <FontAwesome name="shopping-cart" size={20} color="#FFF" />
     </TouchableOpacity>
@@ -59,12 +55,12 @@ export default function Home() {
     <ScrollView style={styles.container}>
       {/* BANNER */}
       <View style={styles.bannerContainer}>
-        <Text style={styles.bannerText}>SEJA BEM VINDO!</Text>
+        <Text style={styles.bannerText}>FAÇA SEU PEDIDO!</Text>
       </View>
 
       {/* CARROSSEL DE PRODUTOS */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carrosselContainer}>
-        {produtos.slice(0, 3).map((produto) => (
+        {produtos.slice(0, 6).map((produto) => (
           <View key={produto.id} style={styles.carrosselItem}>
             <Image source={produto.imagem} style={styles.carrosselImage} />
           </View>
@@ -187,5 +183,4 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
   },
-});
-
+}); 

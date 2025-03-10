@@ -2,15 +2,17 @@ import React, { useState, useCallback } from "react";
 import { Stack } from "expo-router";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient"; 
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
+import { useRouter } from 'expo-router';
 
 /* INTERFACES */
 interface HeaderProps {
-  onToggleMenu: () => void;  // Função que não retorna nada
+  onToggleMenu: () => void; // Função que não retorna nada
 }
 
 interface FooterProps {
-  onWhatsAppPress: () => void;  // Função que não retorna nada
+  onWhatsAppPress: () => void; // Função que não retorna nada
 }
 
 export default function Layout() {
@@ -38,7 +40,12 @@ export default function Layout() {
 
       {/* CONTEÚDO PRINCIPAL */}
       <View style={styles.content}>
-        <Stack screenOptions={{ headerShown: false }} /> {/* Desabilita o header da navegação */}
+        <Stack>
+          <Stack.Screen name="login" options={{ headerShown: false }} /> {/* Rota inicial */}
+          <Stack.Screen name="home" options={{ headerShown: false }} /> {/* Rota inicial */}
+          <Stack.Screen name="pedido" options={{ headerShown: false }} /> {/* Rota de pedidos */}
+          <Stack.Screen name="cart" options={{ headerShown: false }} /> {/* Rota de CarteiraPedidos */}
+        </Stack>
       </View>
 
       {/* FOOTER */}
@@ -64,15 +71,30 @@ const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
 );
 
 // Menu Dropdown
-const MenuDropdown = () => (
-  <View style={styles.menuDropdown}>
-    {["Início", "Cardápio", "Pedidos"].map((item, index) => (
-      <TouchableOpacity key={index} onPress={() => alert(`Ir para ${item}`)}>
-        <Text style={styles.menuItem}>{item}</Text>
-      </TouchableOpacity>
-    ))}
-  </View>
-);   
+const MenuDropdown = () => {
+  const router = useRouter(); 
+
+  return (
+    <View style={styles.menuDropdown}>
+      {["Início", "Pedidos", "Carrinho"].map((item, index) => (
+        <TouchableOpacity
+          key={index}
+          onPress={() => {
+            if (item === "Início") {
+              router.push ('/(tabs)/home'); // Navega para a tela inicial
+            } else if (item === "Pedidos") {
+              router.push ('/(tabs)/pedido'); // Navega para a tela de Pedidos
+            } else if (item === "Carrinho") {
+              router.push ('/(tabs)/cart'); // Navega para a tela de Carrinho
+            }
+          }}
+        >
+          <Text style={styles.menuItem}>{item}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
 
 // Footer
 const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
@@ -84,7 +106,6 @@ const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
     <MaterialIcons name="delivery-dining" size={30} color="red" style={{ marginLeft: 15 }} />
   </View>
 );
-  
 
 /* ESTILOS */
 const styles = StyleSheet.create({

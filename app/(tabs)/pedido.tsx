@@ -28,7 +28,8 @@ const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => (
   </View>
 );
 
-export default function Home() {
+export default function Pedido() {
+  
   return (
     <View style={styles.container}>
       {/* BANNER */}

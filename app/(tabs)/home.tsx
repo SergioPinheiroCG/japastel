@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, ScrollView, Animated } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Animated } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
@@ -52,45 +52,60 @@ export default function Home() {
   }, []);
 
   return (
-    <ScrollView style={styles.container}>
-      {/* BANNER */}
-      <View style={styles.bannerContainer}>
-        <Text style={styles.bannerText}>FAÇA SEU PEDIDO!</Text>
-      </View>
-
-      {/* CARROSSEL DE PRODUTOS */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.carrosselContainer}>
-        {produtos.slice(0, 6).map((produto) => (
-          <View key={produto.id} style={styles.carrosselItem}>
-            <Image source={produto.imagem} style={styles.carrosselImage} />
+    <FlatList
+      data={produtos}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => <ProdutoItem item={item} />}
+      ListHeaderComponent={
+        <>
+          {/* BANNER */}
+          <View style={styles.bannerContainer}>
+            <Text style={styles.bannerText}>SEJA BEM VINDO!</Text>
           </View>
-        ))}
-      </ScrollView>
 
-      {/* DEPOIMENTOS */}
-      <Animated.View style={[styles.depoimentosContainer, { opacity: fadeAnim }]}>
-        <Text style={styles.depoimentosTitle}>O que nossos clientes dizem:</Text>
-        <FlatList
-          data={depoimentos}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <DepoimentoItem item={item} />}
-          contentContainerStyle={styles.depoimentosList}
-        />
-      </Animated.View>
+          {/* CARROSSEL DE PRODUTOS */}
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={produtos}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View key={item.id} style={styles.carrosselItem}>
+                <Image source={item.imagem} style={styles.carrosselImage} />
+              </View>
+            )}
+            style={styles.carrosselContainer}
+          />
 
-      {/* SOBRE A EMPRESA */}
-      <View style={styles.sobreContainer}>
-        <Text style={styles.sobreTitle}>Sobre a empresa</Text>
-        <Text style={styles.sobreText}>
-          O Japastel foi fundado por Gustavo Kubo, um japonês que chegou ao Brasil com uma visão única. Ao longo dos anos,
-          Gustavo e sua família consolidaram o Japastel como uma referência em qualidade e sabor, oferecendo deliciosos
-          pastéis e refrigerantes em um ambiente acolhedor e familiar.
-        </Text>
-        <TouchableOpacity style={styles.sobreButton}>
-          <Text style={styles.sobreButtonText}>Saiba mais</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          {/* DEPOIMENTOS */}
+          <Animated.View style={[styles.depoimentosContainer, { opacity: fadeAnim }]}>
+            <Text style={styles.depoimentosTitle}>O que nossos clientes dizem:</Text>
+            <FlatList
+              data={depoimentos}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <DepoimentoItem item={item} />}
+              contentContainerStyle={styles.depoimentosList}
+              nestedScrollEnabled={true} // Ativa rolagem aninhada
+            />
+          </Animated.View>
+
+          {/* SOBRE A EMPRESA */}
+          <View style={styles.sobreContainer}>
+            <Text style={styles.sobreTitle}>Sobre a empresa</Text>
+            <Text style={styles.sobreText}>
+              O Japastel foi fundado por Gustavo Kubo, um japonês que chegou ao Brasil com uma visão única. Ao longo dos anos,
+              Gustavo e sua família consolidaram o Japastel como uma referência em qualidade e sabor, oferecendo deliciosos
+              pastéis e refrigerantes em um ambiente acolhedor e familiar.
+            </Text>
+            <TouchableOpacity style={styles.sobreButton}>
+              <Text style={styles.sobreButtonText}>Saiba mais</Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      }
+      ListFooterComponent={null}
+      contentContainerStyle={styles.container}
+    />
   );
 }
 
@@ -183,4 +198,4 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
   },
-}); 
+});

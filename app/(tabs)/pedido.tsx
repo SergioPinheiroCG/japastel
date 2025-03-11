@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useCart } from '../../context/CartContext'; // Importando o contexto
 
 // Lista de produtos
 const produtos = [
@@ -10,34 +11,34 @@ const produtos = [
   { id: '4', nome: 'Pastel de Carne', descricao: 'Pastel frito com carne moída e bacon', preco: 'R$ 16,00', imagem: require('../../assets/images/pastel_carne.png') },
   { id: '5', nome: 'Refrigerantes', descricao: 'Melão, Mirtilo, Morango, Original, Laranja', preco: 'R$ 25,00', imagem: require('../../assets/images/refrigerante.png') },
   { id: '6', nome: 'Coca-Cola', descricao: 'É feito a partir de água gaseificada, açúcar, extrato de noz de cola e cafeína ', preco: 'R$ 8,00', imagem: require('../../assets/images/coca.png') },
-  { id: '7', nome: 'Guarana', descricao: 'Água gaseificada,açúcar,semente de guaraná,aroma natural de guaraná,acidulante:ácido cítrico;conservadores:sorbato de potássio e benzoato de sódio;corante;caramelo tipo IV', preco: 'R$ 8,00', imagem: require('../../assets/images/guarana.png') },
- ];
+  { id: '7', nome: 'Guarana', descricao: 'Água gaseificada, açúcar, semente de guaraná, aroma natural de guaraná', preco: 'R$ 8,00', imagem: require('../../assets/images/guarana.png') },
+];
 
 // Componente de item do produto
-const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => (
-  <View style={styles.itemCard}>
-    <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
-    <View style={styles.itemInfo}>
-      <Text style={styles.itemName}>{item.nome}</Text>
-      <Text style={styles.itemDescription}>{item.descricao}</Text>
-      <Text style={styles.itemPrice}>{item.preco}</Text>
+const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => {
+  const { addToCart } = useCart(); // Usando o contexto
+
+  return (
+    <View style={styles.itemCard}>
+      <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
+      <View style={styles.itemInfo}>
+        <Text style={styles.itemName}>{item.nome}</Text>
+        <Text style={styles.itemDescription}>{item.descricao}</Text>
+        <Text style={styles.itemPrice}>{item.preco}</Text>
+      </View>
+      <TouchableOpacity style={styles.cartButton} onPress={() => addToCart(item)}>
+        <FontAwesome name="shopping-cart" size={20} color="#FFF" />
+      </TouchableOpacity>
     </View>
-    <TouchableOpacity style={styles.cartButton}>
-      <FontAwesome name="shopping-cart" size={20} color="#FFF" />
-    </TouchableOpacity>
-  </View>
-);
+  );
+};
 
 export default function Pedido() {
-  
   return (
     <View style={styles.container}>
-      {/* BANNER */}
       <View style={styles.bannerContainer}>
         <Text style={styles.bannerText}>FAÇA SEU PEDIDO</Text>
       </View>
-
-      {/* LISTA DE PRODUTOS */}
       <FlatList
         data={produtos}
         keyExtractor={(item) => item.id}
@@ -48,6 +49,8 @@ export default function Pedido() {
     </View>
   );
 }
+
+
 
 // ESTILOS
 const styles = StyleSheet.create({

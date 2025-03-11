@@ -3,16 +3,15 @@ import { Stack } from "expo-router";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { useNavigation } from "@react-navigation/native";
 import { useRouter } from 'expo-router';
-
-/* INTERFACES */
-interface HeaderProps {
-  onToggleMenu: () => void; // Função que não retorna nada
-}
+import { CartProvider } from "../../context/CartContext"; // Importando o CartProvider
 
 interface FooterProps {
-  onWhatsAppPress: () => void; // Função que não retorna nada
+  onWhatsAppPress: () => void;
+}
+
+interface HeaderProps {
+  onToggleMenu: () => void;
 }
 
 export default function Layout() {
@@ -31,28 +30,23 @@ export default function Layout() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      {/* HEADER */}
-      <Header onToggleMenu={handleToggleMenu} />
-
-      {/* MENU DROPDOWN */}
-      {menuOpen && <MenuDropdown />}
-
-      {/* CONTEÚDO PRINCIPAL */}
-      <View style={styles.content}>
-        <Stack>
-          <Stack.Screen name="login" options={{ headerShown: false }} /> {/* Rota inicial */}
-          <Stack.Screen name="home" options={{ headerShown: false }} /> {/* Rota inicial */}
-          <Stack.Screen name="pedido" options={{ headerShown: false }} /> {/* Rota de pedidos */}
-          <Stack.Screen name="cart" options={{ headerShown: false }} /> {/* Rota de CarteiraPedidos */}
-        </Stack>
+    <CartProvider> {/* Adicionando o CartProvider aqui */}
+      <View style={styles.container}>
+        <Header onToggleMenu={handleToggleMenu} />
+        {menuOpen && <MenuDropdown />}
+        <View style={styles.content}>
+          <Stack>
+            <Stack.Screen name="home" options={{ headerShown: false }} />
+            <Stack.Screen name="pedido" options={{ headerShown: false }} />
+            <Stack.Screen name="cart" options={{ headerShown: false }} />
+          </Stack>
+        </View>
+        <Footer onWhatsAppPress={handleWhatsApp} />
       </View>
-
-      {/* FOOTER */}
-      <Footer onWhatsAppPress={handleWhatsApp} />
-    </View>
+    </CartProvider>
   );
 }
+
 
 /* COMPONENTES SEPARADOS */
 
@@ -81,7 +75,7 @@ const MenuDropdown = () => {
           key={index}
           onPress={() => {
             if (item === "Início") {
-              router.push ('/(tabs)/home'); // Navega para a tela inicial
+              router.push ('../welcome'); // Navega para a tela inicial
             } else if (item === "Pedidos") {
               router.push ('/(tabs)/pedido'); // Navega para a tela de Pedidos
             } else if (item === "Carrinho") {

@@ -5,6 +5,7 @@ import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from 'expo-router';
 import { CartProvider } from "../../context/CartContext"; // Importando o CartProvider
+import { Entypo } from '@expo/vector-icons';
 
 interface FooterProps {
   onWhatsAppPress: () => void;
@@ -64,6 +65,7 @@ const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
   </LinearGradient>
 );
 
+
 // Menu Dropdown
 const MenuDropdown = () => {
   const router = useRouter(); 
@@ -103,6 +105,27 @@ const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
 
 /* ESTILOS */
 const styles = StyleSheet.create({
+  menuContainer: {
+    position: 'relative',
+    alignItems: 'center',
+  },
+  menuButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  
+  menuItemText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  iconButton: {
+    padding: 10,
+  },
+
+
+
+  
   container: {
     flex: 1,
   },

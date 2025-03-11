@@ -1,49 +1,46 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
-// Tipo do produto
-interface Produto {
-  id: string;
-  nome: string;
-  descricao: string;
-  preco: string;
-  imagem: any;
-}
+// Criando o contexto
+const CartContext = createContext(null);
 
-// Tipo do contexto
-interface CartContextType {
-  cartItems: Produto[];
-  addToCart: (item: Produto) => void;
-  removeFromCart: (id: string) => void;
-}
+export const CartProvider = ({ children }) => {
+  const [cartItems, setCartItems] = useState([]);
 
-// Criar contexto
-const CartContext = createContext<CartContextType | undefined>(undefined);
-
-// Provedor do contexto
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cartItems, setCartItems] = useState<Produto[]>([]);
-
-  const addToCart = (item: Produto) => {
-    setCartItems((prevCart) => {
-      // Evitar duplicados
-      if (prevCart.some((cartItem) => cartItem.id === item.id)) {
-        return prevCart;
+  // Função para adicionar item ao carrinho
+  const addToCart = (item) => {
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((i) => i.id === item.id);
+      if (existingItem) {
+        return prevItems.map((i) =>
+          i.id === item.id ? { ...i, quantidade: (i.quantidade || 1) + 1 } : i
+        );
       }
-      return [...prevCart, item];
+      return [...prevItems, { ...item, quantidade: 1 }];
     });
   };
-  const removeFromCart = (id: string) => {
-    setCartItems((prevCart) => prevCart.filter((item) => item.id !== id));
+
+  // Função para remover um item do carrinho
+  const removeFromCart = (id) => {
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  };
+
+  // Função para atualizar a quantidade do item no carrinho
+  const updateQuantity = (id, quantidade) => {
+    setCartItems((prevItems) =>
+      prevItems.map((item) =>
+        item.id === id ? { ...item, quantidade: Math.max(1, quantidade) } : item
+      )
+    );
   };
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity }}>
       {children}
     </CartContext.Provider>
   );
 };
 
-// Hook para usar o contexto
+// Hook personalizado para usar o carrinho
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {

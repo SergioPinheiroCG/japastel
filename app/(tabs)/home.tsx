@@ -89,17 +89,15 @@ export default function Home() {
             />
           </Animated.View>
 
-          {/* SOBRE A EMPRESA */}
-          <View style={styles.sobreContainer}>
-            <Text style={styles.sobreTitle}>Sobre a empresa</Text>
-            <Text style={styles.sobreText}>
+ {/* SOBRE A EMPRESA */}
+          <View style={styles.depoimentosContainer}>  {/* Usando o mesmo estilo de depoimento */}
+            <Text style={styles.depoimentoNome}>Sobre a empresa</Text>  {/* Usando o estilo do nome do depoimento */}
+            <Text style={styles.depoimentoComentario}>
               O Japastel foi fundado por Gustavo Kubo, um japonês que chegou ao Brasil com uma visão única. Ao longo dos anos,
               Gustavo e sua família consolidaram o Japastel como uma referência em qualidade e sabor, oferecendo deliciosos
               pastéis e refrigerantes em um ambiente acolhedor e familiar.
             </Text>
-            <TouchableOpacity style={styles.sobreButton}>
-              <Text style={styles.sobreButtonText}>Saiba mais</Text>
-            </TouchableOpacity>
+         
           </View>
         </>
       }
@@ -111,6 +109,8 @@ export default function Home() {
 
 // ESTILOS
 const styles = StyleSheet.create({
+
+  
   container: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -152,13 +152,13 @@ const styles = StyleSheet.create({
   },
   depoimentoCard: {
     backgroundColor: '#FFF',
-    padding: 10,
-    marginBottom: 10,
+    padding: 5,
+    marginBottom: 5,
     borderRadius: 8,
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 5,
-    elevation: 3,
+    elevation: 4,
   },
   depoimentoNome: {
     fontWeight: 'bold',
@@ -184,9 +184,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sobreText: {
-    fontSize: 14,
-    color: '#666',
-  },
+  fontSize: 14,
+  color: '#666',
+  flexShrink: 1,  // Permite que o texto se ajuste ao tamanho da tela
+},
   sobreButton: {
     marginTop: 15,
     backgroundColor: '#CE0000',

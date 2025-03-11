@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { useRouter } from 'expo-router'; // Importando navegação
 import { useCart } from '../../context/CartContext'; // Importando o contexto
 
 // Lista de produtos
@@ -18,6 +19,11 @@ const produtos = [
 const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => {
   const { addToCart } = useCart(); // Usando o contexto
 
+  const handleAddToCart = () => {
+    addToCart(item);
+    Alert.alert("Sucesso!", "Item adicionado ao carrinho!"); // Mostra um alerta
+  };
+
   return (
     <View style={styles.itemCard}>
       <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
@@ -26,14 +32,16 @@ const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => {
         <Text style={styles.itemDescription}>{item.descricao}</Text>
         <Text style={styles.itemPrice}>{item.preco}</Text>
       </View>
-      <TouchableOpacity style={styles.cartButton} onPress={() => addToCart(item)}>
+      <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
         <FontAwesome name="shopping-cart" size={20} color="#FFF" />
       </TouchableOpacity>
     </View>
   );
 };
 
-export default function Pedido() {
+function Pedido() {
+  const router = useRouter();
+
   return (
     <View style={styles.container}>
       <View style={styles.bannerContainer}>
@@ -46,11 +54,13 @@ export default function Pedido() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
+      {/* Botão para conferir o carrinho */}
+      <TouchableOpacity style={styles.checkoutButton} onPress={() => router.push('/(tabs)/cart')}>
+        <Text style={styles.checkoutText}>Conferir Carrinho</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
-
 
 // ESTILOS
 const styles = StyleSheet.create({
@@ -115,4 +125,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  checkoutButton: {
+    backgroundColor: '#CE0000',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: 20,
+  },
+  checkoutText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
 });
+
+export default Pedido;

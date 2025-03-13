@@ -3,6 +3,7 @@ import { Text, View, Image, TextInput, TouchableOpacity, StyleSheet, Alert } fro
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Login = () => {
     const router = useRouter();
@@ -15,18 +16,14 @@ const Login = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     // Função para validar o e-mail em tempo real
-    interface ValidateEmailProps {
-        text: string;
-    }
-
-    const validateEmail = (text: ValidateEmailProps['text']) => {
-        setEmail(text); // Atualiza o estado do e-mail
+    const validateEmail = (text: string) => {
+        setEmail(text);
         if (!text) {
-            setEmailError('E-mail é obrigatório'); // Campo vazio
+            setEmailError('E-mail é obrigatório');
         } else if (!emailRegex.test(text)) {
-            setEmailError('E-mail inválido'); // E-mail inválido
+            setEmailError('E-mail inválido');
         } else {
-            setEmailError(''); // E-mail válido
+            setEmailError('');
         }
     };
 
@@ -50,16 +47,30 @@ const Login = () => {
         return isValid;
     };
 
-    // Redireciona para a tela HOME se o formulário for válido
-    const handleEntrar = () => {
+    // Função para lidar com o login
+    const handleEntrar = async () => {
         if (validateForm()) {
-            router.push('/(tabs)/home');
+            try {
+                const userString = await AsyncStorage.getItem('user');
+                if (userString) {
+                    const user = JSON.parse(userString);
+                    if (user.email === email && user.password === password) {
+                        router.push('/(tabs)/home'); // Redireciona para a tela inicial
+                    } else {
+                        Alert.alert('Erro', 'E-mail ou senha incorretos.');
+                    }
+                } else {
+                    Alert.alert('Erro', 'Nenhum usuário cadastrado.');
+                }
+            } catch (error) {
+                Alert.alert('Erro', 'Ocorreu um erro ao recuperar os dados.');
+            }
         } else {
             Alert.alert('Erro', 'Login Inválido! Por favor, digite E-mail e senha válidos.');
         }
     };
 
-    // Redireciona para a tela REGISTER
+    // Redireciona para a tela de cadastro
     const handleRegister = () => {
         router.push('/register');
     };
@@ -87,7 +98,7 @@ const Login = () => {
                         placeholder="Digite seu e-mail"
                         placeholderTextColor="#999"
                         value={email}
-                        onChangeText={validateEmail} // Valida o e-mail em tempo real
+                        onChangeText={validateEmail}
                         keyboardType="email-address"
                         autoCapitalize="none"
                     />

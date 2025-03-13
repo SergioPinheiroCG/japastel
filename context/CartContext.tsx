@@ -1,13 +1,33 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-// Criando o contexto
-const CartContext = createContext(null);
+// Definindo o tipo do contexto
+interface CartItem {
+  id: number;
+  quantidade: number;
+  [key: string]: any;
+}
 
-export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
+interface CartContextType {
+  cartItems: CartItem[];
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (id: number) => void;
+  updateQuantity: (id: number, quantidade: number) => void;
+}
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// CartItem interface moved outside
+export const CartProvider = ({ children }: { children: ReactNode }) => {
+  interface CartItem {
+    id: number;
+    quantidade: number;
+    [key: string]: any;
+  }
+
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
   // Função para adicionar item ao carrinho
-  const addToCart = (item) => {
+  const addToCart = (item: CartItem) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((i) => i.id === item.id);
       if (existingItem) {
@@ -20,12 +40,16 @@ export const CartProvider = ({ children }) => {
   };
 
   // Função para remover um item do carrinho
-  const removeFromCart = (id) => {
+  const removeFromCart = (id: number) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   // Função para atualizar a quantidade do item no carrinho
-  const updateQuantity = (id, quantidade) => {
+  interface UpdateQuantity {
+    (id: number, quantidade: number): void;
+  }
+
+  const updateQuantity: UpdateQuantity = (id, quantidade) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === id ? { ...item, quantidade: Math.max(1, quantidade) } : item

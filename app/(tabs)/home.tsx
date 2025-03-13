@@ -16,13 +16,18 @@ const produtos = [
 
 // Postagens de clientes
 const depoimentos = [
-  { id: '1', nome: 'João', comentario: 'O pastel de carne é simplesmente maravilhoso! Muito saboroso!' },
-  { id: '2', nome: 'Maria', comentario: 'O atendimento é excelente, e o pastel de camarão é imperdível!' },
-  { id: '3', nome: 'Carlos', comentario: 'Melhor pastel que já comi! Preço justo e qualidade incrível!' },
+  { id: '1', nome: 'Fabricio Dias', comentario: 'O pastel de carne é simplesmente maravilhoso! Muito saboroso!' },
+  { id: '2', nome: 'Bruno Rafael', comentario: 'O atendimento é excelente, e o pastel de camarão é imperdível!' },
+  { id: '3', nome: 'Daniel Abella', comentario: 'Melhor pastel que já comi! Preço justo e qualidade incrível!' },
 ];
 
 // Componente de item do produto
-const ProdutoItem = ({ item }) => (
+interface Produto {
+  id: string;
+  imagem: any;
+}
+
+const ProdutoItem = ({ item }: { item: Produto }) => (
   <View style={styles.itemCard}>
     <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
     <TouchableOpacity style={styles.cartButton}>
@@ -31,13 +36,22 @@ const ProdutoItem = ({ item }) => (
   </View>
 );
 
+
+
 // Componente para os depoimentos
-const DepoimentoItem = ({ item }) => (
+interface Depoimento {
+  id: string;
+  nome: string;
+  comentario: string;
+}
+
+const DepoimentoItem = ({ item }: { item: Depoimento }) => (
   <View style={styles.depoimentoCard}>
     <Text style={styles.depoimentoNome}>{item.nome}</Text>
     <Text style={styles.depoimentoComentario}>{item.comentario}</Text>
   </View>
 );
+
 
 export default function Home() {
   const fadeAnim = new Animated.Value(0); // Controle de animação de fade
@@ -198,5 +212,29 @@ const styles = StyleSheet.create({
   sobreButtonText: {
     color: '#FFF',
     fontSize: 16,
+  },
+  itemCard: {
+    backgroundColor: '#FFF',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 4,
+    alignItems: 'center',
+  },
+  itemImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  cartButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#CE0000',
+    padding: 5,
+    borderRadius: 5,
   },
 });

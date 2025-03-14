@@ -1,12 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { useCart } from '../../context/CartContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart() as unknown as { cartItems: CartItem[], removeFromCart: (id: string) => void, updateQuantity: (id: string, quantity: number) => void };
   const router = useRouter(); // Inicializando o roteador
+
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('Dinheiro'); // Estado para o método de pagamento
+  const [userName, setUserName] = useState<string>(''); // Estado para o nome do usuário
+
+  useEffect(() => {
+    // Recupera o nome do usuário logado do AsyncStorage
+    const fetchUserName = async () => {
+      const storedUserName = await AsyncStorage.getItem('loggedInUser');
+      if (storedUserName) {
+        setUserName(storedUserName);
+      }
+    };
+
+    fetchUserName();
+  }, []);
 
   interface CartItem {
     id: string;
@@ -41,9 +57,38 @@ const Cart = () => {
     ]);
   };
 
+  const renderPaymentOption = (paymentMethod: string) => {
+    switch (paymentMethod) {
+      case 'Dinheiro':
+        return (
+          <View style={styles.paymentOption}>
+            <FontAwesome name="money" size={24} color="green" />
+            <Text style={styles.paymentText}>Dinheiro</Text>
+          </View>
+        );
+      case 'Pix':
+        return (
+          <View style={styles.paymentOption}>
+            <FontAwesome name="qrcode" size={24} color="blue" />
+            <Text style={styles.paymentText}>Pix</Text>
+          </View>
+        );
+      case 'Cartão de Crédito':
+        return (
+          <View style={styles.paymentOption}>
+            <FontAwesome name="credit-card" size={24} color="red" />
+            <Text style={styles.paymentText}>Cartão de Crédito</Text>
+          </View>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seu Carrinho</Text>
+      {/* Exibindo o nome do usuário logado no título */}
+      <Text style={styles.title}>Seu Carrinho, {userName ? userName : 'Carregando...'}</Text>
 
       {cartItems.length === 0 ? (
         <Text style={styles.emptyText}>Seu carrinho está vazio.</Text>
@@ -83,6 +128,22 @@ const Cart = () => {
 
           <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
 
+          {/* Seção de seleção de forma de pagamento */}
+          <View style={styles.paymentMethodContainer}>
+            <Text style={styles.paymentMethodTitle}>Forma de pagamento</Text>
+            <View style={styles.paymentMethodOptions}>
+              {['Dinheiro', 'Pix', 'Cartão de Crédito'].map((paymentMethod) => (
+                <TouchableOpacity
+                  key={paymentMethod}
+                  style={styles.paymentMethodButton}
+                  onPress={() => setSelectedPaymentMethod(paymentMethod)}
+                >
+                  {renderPaymentOption(paymentMethod)}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           <Button title="Finalizar Pedido" color="green" onPress={finalizarPedido} />
         </>
       )}
@@ -102,20 +163,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
   },
   emptyText: {
-    fontSize: 16,
-    color: 'gray',
+    fontSize: 18,
     textAlign: 'center',
     marginTop: 20,
   },
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ddd',
@@ -124,42 +183,61 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   itemText: {
-    fontSize: 16,
+    fontSize: 18,
   },
   itemPrice: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#CE0000',
+    color: '#666',
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
   },
   quantityText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  totalText: {
+    marginHorizontal: 10,
     fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: 20,
-    textAlign: 'right',
-  },
-  voltarButton: {
-    backgroundColor: '#CE0000',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  voltarButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   trashIcon: {
     marginLeft: 10,
+  },
+  totalText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginTop: 20,
+  },
+  paymentMethodContainer: {
+    marginTop: 20,
+  },
+  paymentMethodTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  paymentMethodOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
+  },
+  paymentMethodButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paymentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paymentText: {
+    marginLeft: 10,
+    fontSize: 16,
+  },
+  voltarButton: {
+    marginTop: 20,
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    alignItems: 'center',
+  },
+  voltarButtonText: {
+    fontSize: 16,
+    color: '#000',
   },
 });
 

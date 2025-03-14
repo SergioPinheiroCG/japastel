@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from "react-
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from 'expo-router';
-import { CartProvider } from "../../context/CartContext"; // Importando o CartProvider
+import { CartProvider } from "../../context/CartContext";
 import { Entypo } from '@expo/vector-icons';
 
 interface FooterProps {
@@ -31,10 +31,10 @@ export default function Layout() {
   }, []);
 
   return (
-    <CartProvider> {/* Adicionando o CartProvider aqui */}
+    <CartProvider>
       <View style={styles.container}>
         <Header onToggleMenu={handleToggleMenu} />
-        {menuOpen && <MenuDropdown />}
+        {menuOpen && <MenuDropdown onCloseMenu={handleToggleMenu} />}
         <View style={styles.content}>
           <Stack>
             <Stack.Screen name="home" options={{ headerShown: false }} />
@@ -47,9 +47,6 @@ export default function Layout() {
     </CartProvider>
   );
 }
-
-
-/* COMPONENTES SEPARADOS */
 
 // Header
 const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
@@ -65,25 +62,27 @@ const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
   </LinearGradient>
 );
 
-
 // Menu Dropdown
-const MenuDropdown = () => {
-  const router = useRouter(); 
+const MenuDropdown = ({ onCloseMenu }: { onCloseMenu: () => void }) => {
+  const router = useRouter();
+
+  const handleNavigation = (route: string) => {
+    if (route === "Início") {
+      router.push('../welcome');
+    } else if (route === "Pedidos") {
+      router.push('/(tabs)/pedido');
+    } else if (route === "Carrinho") {
+      router.push('/(tabs)/cart');
+    }
+    onCloseMenu(); // Fechar o menu após a navegação
+  };
 
   return (
     <View style={styles.menuDropdown}>
       {["Início", "Pedidos", "Carrinho"].map((item, index) => (
         <TouchableOpacity
           key={index}
-          onPress={() => {
-            if (item === "Início") {
-              router.push ('../welcome'); // Navega para a tela inicial
-            } else if (item === "Pedidos") {
-              router.push ('/(tabs)/pedido'); // Navega para a tela de Pedidos
-            } else if (item === "Carrinho") {
-              router.push ('/(tabs)/cart'); // Navega para a tela de Carrinho
-            }
-          }}
+          onPress={() => handleNavigation(item)}
         >
           <Text style={styles.menuItem}>{item}</Text>
         </TouchableOpacity>
@@ -103,34 +102,11 @@ const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
   </View>
 );
 
-/* ESTILOS */
+// Estilos
 const styles = StyleSheet.create({
-  menuContainer: {
-    position: 'relative',
-    alignItems: 'center',
-  },
-  menuButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  
-  menuItemText: {
-    fontSize: 16,
-    color: '#333',
-  },
-  iconButton: {
-    padding: 10,
-  },
-
-
-
-  
   container: {
     flex: 1,
   },
-
-  // HEADER
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -143,8 +119,6 @@ const styles = StyleSheet.create({
   menuButton: {
     marginLeft: "auto",
   },
-
-  // MENU DROPDOWN
   menuDropdown: {
     position: "absolute",
     top: 60,
@@ -160,13 +134,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     color: "#333",
   },
-
-  // CONTEÚDO
   content: {
     flex: 1,
   },
-
-  // FOOTER
   footer: {
     flexDirection: "row",
     alignItems: "center",

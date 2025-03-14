@@ -5,7 +5,7 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 const Cart = () => {
-  const { cartItems, removeFromCart, updateQuantity } = useCart() as { cartItems: CartItem[], removeFromCart: (id: string) => void, updateQuantity: (id: string, quantity: number) => void };
+  const { cartItems, removeFromCart, updateQuantity } = useCart() as unknown as { cartItems: CartItem[], removeFromCart: (id: string) => void, updateQuantity: (id: string, quantity: number) => void };
   const router = useRouter(); // Inicializando o roteador
 
   interface CartItem {

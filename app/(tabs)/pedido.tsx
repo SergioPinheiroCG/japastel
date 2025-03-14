@@ -20,7 +20,7 @@ const ProdutoItem = ({ item }: { item: typeof produtos[0] }) => {
   const { addToCart } = useCart(); // Usando o contexto
 
   const handleAddToCart = () => {
-    addToCart(item);
+    addToCart({ ...item, id: Number(item.id), quantidade: 1 });
     Alert.alert("Sucesso!", "Item adicionado ao carrinho!"); // Mostra um alerta
   };
 

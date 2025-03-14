@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Image, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
@@ -39,8 +39,8 @@ const Register = () => {
         }
     };
 
-    // Função para formatar o CPF
-    const formatCpf = (text: string) => {
+    // Função para formatar e validar o CPF
+    const formatAndValidateCpf = (text: string) => {
         let formattedText = text.replace(/\D/g, '');
         if (formattedText.length > 3) {
             formattedText = formattedText.replace(/^(\d{3})(\d)/, '$1.$2');
@@ -55,14 +55,33 @@ const Register = () => {
             formattedText = formattedText.substring(0, 14);
         }
         setCpf(formattedText);
+
+        // Validação do CPF
+        if (formattedText.length === 14) {
+            setCpfError('');
+        } else {
+            setCpfError('CPF inválido');
+        }
+    };
+
+    // Função para verificar se um valor já está cadastrado
+    const isValueUnique = async (key: string, value: string) => {
+        try {
+            const usersString = await AsyncStorage.getItem('users');
+            const users = usersString ? JSON.parse(usersString) : [];
+            return !users.some((user: any) => user[key] === value);
+        } catch (error) {
+            console.error('Erro ao verificar unicidade:', error);
+            return false;
+        }
     };
 
     // Função para validar o formulário
-    const validateForm = () => {
+    const validateForm = async () => {
         let isValid = true;
 
-        if (!name) {
-            setNameError('Nome é obrigatório');
+        if (!name || name.length < 2) {
+            setNameError('Nome deve ter pelo menos 2 caracteres');
             isValid = false;
         } else {
             setNameError('');
@@ -70,6 +89,9 @@ const Register = () => {
 
         if (!phone) {
             setPhoneError('Telefone é obrigatório');
+            isValid = false;
+        } else if (!(await isValueUnique('phone', phone))) {
+            setPhoneError('Telefone já cadastrado');
             isValid = false;
         } else {
             setPhoneError('');
@@ -81,15 +103,18 @@ const Register = () => {
         } else if (!emailRegex.test(email)) {
             setEmailError('E-mail inválido');
             isValid = false;
+        } else if (!(await isValueUnique('email', email))) {
+            setEmailError('E-mail já cadastrado');
+            isValid = false;
         } else {
             setEmailError('');
         }
 
-        if (!cpf) {
-            setCpfError('CPF é obrigatório');
+        if (!cpf || cpf.length < 14) {
+            setCpfError('CPF inválido');
             isValid = false;
-        } else if (cpf.length < 14) {
-            setCpfError('CPF incompleto');
+        } else if (!(await isValueUnique('cpf', cpf))) {
+            setCpfError('CPF já cadastrado');
             isValid = false;
         } else {
             setCpfError('');
@@ -117,7 +142,7 @@ const Register = () => {
 
     // Função para lidar com o cadastro
     const handleRegister = async () => {
-        if (validateForm()) {
+        if (await validateForm()) {
             const user = {
                 name,
                 phone,
@@ -127,7 +152,10 @@ const Register = () => {
             };
 
             try {
-                await AsyncStorage.setItem('user', JSON.stringify(user));
+                const usersString = await AsyncStorage.getItem('users');
+                const users = usersString ? JSON.parse(usersString) : [];
+                users.push(user);
+                await AsyncStorage.setItem('users', JSON.stringify(users));
                 Alert.alert('Sucesso', 'Cadastro realizado com sucesso!');
                 router.push('/login'); // Redireciona para a tela de login
             } catch (error) {
@@ -215,7 +243,7 @@ const Register = () => {
                                 placeholder="Digite seu CPF"
                                 placeholderTextColor="#999"
                                 value={cpf}
-                                onChangeText={formatCpf}
+                                onChangeText={formatAndValidateCpf}
                                 keyboardType="numeric"
                                 maxLength={14}
                             />
@@ -342,7 +370,7 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         fontSize: 14,
-        marginTop: 5, // Espaço entre o campo e o aviso
+        marginTop: 0, // Espaço entre o campo e o aviso
         marginLeft: 10, // Alinhado à esquerda
     },
 });

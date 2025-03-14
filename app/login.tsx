@@ -51,10 +51,17 @@ const Login = () => {
     const handleEntrar = async () => {
         if (validateForm()) {
             try {
-                const userString = await AsyncStorage.getItem('user');
-                if (userString) {
-                    const user = JSON.parse(userString);
-                    if (user.email === email && user.password === password) {
+                // Recupera a lista de usuários
+                const usersString = await AsyncStorage.getItem('users');
+                if (usersString) {
+                    const users = JSON.parse(usersString);
+
+                    // Verifica se há um usuário com o e-mail e senha fornecidos
+                    const user = users.find(
+                        (u: any) => u.email === email && u.password === password
+                    );
+
+                    if (user) {
                         router.push('/(tabs)/home'); // Redireciona para a tela inicial
                     } else {
                         Alert.alert('Erro', 'E-mail ou senha incorretos.');
@@ -91,33 +98,37 @@ const Login = () => {
             {/* FORMULÁRIO */}
             <View style={styles.formContainer}>
                 {/* INPUT EMAIL */}
-                <View style={styles.inputContainer}>
-                    <FontAwesome name="envelope" size={20} color="#999" style={styles.icon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Digite seu e-mail"
-                        placeholderTextColor="#999"
-                        value={email}
-                        onChangeText={validateEmail}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                    />
+                <View style={styles.inputWrapper}>
+                    <View style={styles.inputContainer}>
+                        <FontAwesome name="envelope" size={20} color="#999" style={styles.icon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Digite seu e-mail"
+                            placeholderTextColor="#999"
+                            value={email}
+                            onChangeText={validateEmail}
+                            keyboardType="email-address"
+                            autoCapitalize="none"
+                        />
+                    </View>
+                    {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
                 </View>
-                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
                 {/* INPUT SENHA */}
-                <View style={styles.inputContainer}>
-                    <MaterialIcons name="lock" size={24} color="#999" style={styles.icon} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Digite sua senha"
-                        placeholderTextColor="#999"
-                        secureTextEntry
-                        value={password}
-                        onChangeText={(text) => setPassword(text)}
-                    />
+                <View style={styles.inputWrapper}>
+                    <View style={styles.inputContainer}>
+                        <MaterialIcons name="lock" size={24} color="#999" style={styles.icon} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Digite sua senha"
+                            placeholderTextColor="#999"
+                            secureTextEntry
+                            value={password}
+                            onChangeText={(text) => setPassword(text)}
+                        />
+                    </View>
+                    {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
                 </View>
-                {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
 
                 {/* BOTÃO ENTRAR */}
                 <TouchableOpacity style={styles.buttonLogin} onPress={handleEntrar}>
@@ -158,6 +169,10 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
+    inputWrapper: {
+        width: '100%',
+        marginBottom: 10, // Espaço entre os campos
+    },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -166,7 +181,6 @@ const styles = StyleSheet.create({
         borderColor: 'red',
         borderRadius: 10,
         paddingHorizontal: 10,
-        marginBottom: 15,
         width: '100%',
     },
     icon: {
@@ -209,8 +223,8 @@ const styles = StyleSheet.create({
     errorText: {
         color: 'red',
         fontSize: 14,
-        alignSelf: 'flex-start',
-        marginBottom: 10,
+        marginTop: 0, // Espaço entre o campo e o aviso
+        marginLeft: 10, // Alinhado à esquerda
     },
 });
 

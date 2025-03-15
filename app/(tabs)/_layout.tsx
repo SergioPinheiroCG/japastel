@@ -1,18 +1,14 @@
 import React, { useState, useCallback } from "react";
 import { Stack } from "expo-router";
 import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from "react-native";
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from 'expo-router';
 import { CartProvider } from "../../context/CartContext";
-import { Entypo } from '@expo/vector-icons';
-
-interface FooterProps {
-  onWhatsAppPress: () => void;
-}
 
 interface HeaderProps {
   onToggleMenu: () => void;
+  onWhatsAppPress: () => void;
 }
 
 export default function Layout() {
@@ -33,29 +29,32 @@ export default function Layout() {
   return (
     <CartProvider>
       <View style={styles.container}>
-        <Header onToggleMenu={handleToggleMenu} />
+        <Header onToggleMenu={handleToggleMenu} onWhatsAppPress={handleWhatsApp} />
         {menuOpen && <MenuDropdown onCloseMenu={handleToggleMenu} />}
         <View style={styles.content}>
           <Stack>
             <Stack.Screen name="home" options={{ headerShown: false }} />
             <Stack.Screen name="pedido" options={{ headerShown: false }} />
             <Stack.Screen name="cart" options={{ headerShown: false }} />
+            
           </Stack>
         </View>
-        <Footer onWhatsAppPress={handleWhatsApp} />
+        <Footer />
       </View>
     </CartProvider>
   );
 }
 
 // Header
-const Header: React.FC<HeaderProps> = ({ onToggleMenu }) => (
+const Header: React.FC<HeaderProps> = ({ onToggleMenu, onWhatsAppPress }) => (
   <LinearGradient colors={["red", "#F9d428"]} style={styles.header}>
     <Image
       source={require("../../assets/images/LogoJapastel.png")}
       style={styles.logo}
       resizeMode="contain"
     />
+    
+    
     <TouchableOpacity onPress={onToggleMenu} style={styles.menuButton}>
       <MaterialIcons name="more-vert" size={30} color="#FFF" />
     </TouchableOpacity>
@@ -92,15 +91,26 @@ const MenuDropdown = ({ onCloseMenu }: { onCloseMenu: () => void }) => {
 };
 
 // Footer
-const Footer: React.FC<FooterProps> = ({ onWhatsAppPress }) => (
-  <View style={styles.footer}>
-    <Text style={styles.footerText}> Dúvidas? Nos chame no WhatsApp </Text>
-    <TouchableOpacity onPress={onWhatsAppPress} style={styles.whatsAppButton}>
-      <FontAwesome name="whatsapp" size={30} color="#25D366" />
-    </TouchableOpacity>
-    <MaterialIcons name="delivery-dining" size={30} color="red" style={{ marginLeft: 15 }} />
-  </View>
-);
+const Footer = () => {
+  const router = useRouter();
+
+  return (
+    <View style={styles.footer}>
+      <TouchableOpacity onPress={() => router.push('/(tabs)/home')}>
+        <MaterialIcons name="home" size={30} color="red" />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push('/(tabs)/pedido')}>
+        <MaterialIcons name="receipt-long" size={30} color="red" />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push('/(tabs)/cart')}>
+        <MaterialIcons name="shopping-cart" size={30} color="red" />
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.back()}>
+        <MaterialIcons name="arrow-back" size={30} color="red" />
+      </TouchableOpacity>
+    </View>
+  );
+};
 
 // Estilos
 const styles = StyleSheet.create({
@@ -118,6 +128,9 @@ const styles = StyleSheet.create({
   },
   menuButton: {
     marginLeft: "auto",
+  },
+  whatsAppButton: {
+    marginLeft: 10,
   },
   menuDropdown: {
     position: "absolute",
@@ -139,16 +152,14 @@ const styles = StyleSheet.create({
   },
   footer: {
     flexDirection: "row",
+    justifyContent: "space-around",
     alignItems: "center",
     borderTopWidth: 1,
     borderTopColor: "#DDD",
     padding: 10,
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#DDD",
-  },
-  whatsAppButton: {
-    marginLeft: 10,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    backgroundColor: "#FFF",
   },
 });

@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { View, Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Image, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons'; // Importando ícones
 
 const Welcome = () => {
@@ -23,12 +23,9 @@ const Welcome = () => {
       <Image source={require('../assets/images/LogoJapastel.png')} style={styles.logo} />
 
       {/* Mensagem de boas-vindas */}
-      <Text style={styles.slogan}>SEJA BEM-VINDO</Text>
+      <Text style={styles.slogan}>SEJA BEM-VINDO {'\n\n'} À FRANQUIA QUE MAIS{'\n'}CRESCE NO{'\n'}BRASIL</Text>
 
-      {/* FRASE DE IMPACTO */}
-      <Text style={styles.slogan}>À FRANQUIA QUE MAIS{'\n'}CRESCE NO{'\n'}BRASIL</Text>
-
-      {/* ÍCONE DE SETA PARA A DIREITA */}
+        {/* ÍCONE DE SETA PARA A DIREITA */}
       <TouchableOpacity style={styles.arrowButton} onPress={handleIniciar}>
         <MaterialIcons name="arrow-forward" size={60} color="red" /> {/* Tamanho aumentado */}
       </TouchableOpacity>
@@ -37,9 +34,7 @@ const Welcome = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1, // Garante que o TouchableOpacity ocupe toda a tela
-  },
+
   gradient: {
     flex: 1, // Garante que o LinearGradient ocupe toda a tela
     justifyContent: 'center', // Centraliza o conteúdo

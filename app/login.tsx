@@ -93,7 +93,7 @@ const Login = () => {
             <Image source={require('../assets/images/LogoJapastel.png')} style={styles.logo} />
 
             {/* FRASE DE IMPACTO */}
-            <Text style={styles.slogan}>A FRANQUIA QUE MAIS {'\n'}CRESCE NO{'\n'}BRASIL</Text>
+            <Text style={styles.slogan}>FAÇA O SEU LOGIN {'\n'} {'\n'}</Text>
 
             {/* FORMULÁRIO */}
             <View style={styles.formContainer}>

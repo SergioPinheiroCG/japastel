@@ -54,10 +54,7 @@ function Pedido() {
         contentContainerStyle={styles.listContainer}
         showsVerticalScrollIndicator={false}
       />
-      {/* Botão para conferir o carrinho */}
-      <TouchableOpacity style={styles.checkoutButton} onPress={() => router.push('/(tabs)/cart')}>
-        <Text style={styles.checkoutText}>Conferir Carrinho</Text>
-      </TouchableOpacity>
+
     </View>
   );
 }

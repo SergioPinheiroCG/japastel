@@ -1,7 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity, Animated } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
 
 // Lista de produtos
 const produtos = [
@@ -30,13 +28,8 @@ interface Produto {
 const ProdutoItem = ({ item }: { item: Produto }) => (
   <View style={styles.itemCard}>
     <Image source={item.imagem} style={styles.itemImage} resizeMode="cover" />
-    <TouchableOpacity style={styles.cartButton}>
-      <FontAwesome name="shopping-cart" size={20} color="#FFF" />
-    </TouchableOpacity>
   </View>
 );
-
-
 
 // Componente para os depoimentos
 interface Depoimento {
@@ -52,19 +45,7 @@ const DepoimentoItem = ({ item }: { item: Depoimento }) => (
   </View>
 );
 
-
 export default function Home() {
-  const fadeAnim = new Animated.Value(0); // Controle de animação de fade
-
-  React.useEffect(() => {
-    // Animação de fade in ao carregar a tela
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1500,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
   return (
     <FlatList
       data={produtos}
@@ -88,11 +69,10 @@ export default function Home() {
                 <Image source={item.imagem} style={styles.carrosselImage} />
               </View>
             )}
-            style={styles.carrosselContainer}
           />
 
           {/* DEPOIMENTOS */}
-          <Animated.View style={[styles.depoimentosContainer, { opacity: fadeAnim }]}>
+          <View style={styles.depoimentosContainer}>
             <Text style={styles.depoimentosTitle}>O que nossos clientes dizem:</Text>
             <FlatList
               data={depoimentos}
@@ -101,9 +81,9 @@ export default function Home() {
               contentContainerStyle={styles.depoimentosList}
               nestedScrollEnabled={true} // Ativa rolagem aninhada
             />
-          </Animated.View>
+          </View>
 
- {/* SOBRE A EMPRESA */}
+          {/* SOBRE A EMPRESA */}
           <View style={styles.depoimentosContainer}>  {/* Usando o mesmo estilo de depoimento */}
             <Text style={styles.depoimentoNome}>Sobre a empresa</Text>  {/* Usando o estilo do nome do depoimento */}
             <Text style={styles.depoimentoComentario}>
@@ -111,7 +91,6 @@ export default function Home() {
               Gustavo e sua família consolidaram o Japastel como uma referência em qualidade e sabor, oferecendo deliciosos
               pastéis e refrigerantes em um ambiente acolhedor e familiar.
             </Text>
-         
           </View>
         </>
       }
@@ -123,8 +102,6 @@ export default function Home() {
 
 // ESTILOS
 const styles = StyleSheet.create({
-
-  
   container: {
     flex: 1,
     backgroundColor: '#FFF',
@@ -198,10 +175,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sobreText: {
-  fontSize: 14,
-  color: '#666',
-  flexShrink: 1,  // Permite que o texto se ajuste ao tamanho da tela
-},
+    fontSize: 14,
+    color: '#666',
+    flexShrink: 1,  // Permite que o texto se ajuste ao tamanho da tela
+  },
   sobreButton: {
     marginTop: 15,
     backgroundColor: '#CE0000',

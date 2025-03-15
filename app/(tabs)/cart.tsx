@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Button, StyleSheet, Alert, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { useCart } from '../../context/CartContext';
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -7,13 +7,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Cart = () => {
   const { cartItems, removeFromCart, updateQuantity } = useCart() as unknown as { cartItems: CartItem[], removeFromCart: (id: string) => void, updateQuantity: (id: string, quantity: number) => void };
-  const router = useRouter(); // Inicializando o roteador
+  const router = useRouter();
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('Dinheiro'); // Estado para o método de pagamento
-  const [userName, setUserName] = useState<string>(''); // Estado para o nome do usuário
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('Dinheiro');
+  const [userName, setUserName] = useState<string>('');
+
+  const [cardNumber, setCardNumber] = useState<string>('');
+  const [securityCode, setSecurityCode] = useState<string>('');
+  const [expiryDate, setExpiryDate] = useState<string>('');
 
   useEffect(() => {
-    // Recupera o nome do usuário logado do AsyncStorage
     const fetchUserName = async () => {
       const storedUserName = await AsyncStorage.getItem('loggedInUser');
       if (storedUserName) {
@@ -43,6 +46,13 @@ const Cart = () => {
       return;
     }
 
+    if (selectedPaymentMethod === 'Cartão de Crédito') {
+      if (!cardNumber || !securityCode || !expiryDate) {
+        Alert.alert('Erro', 'Por favor, preencha todos os campos do cartão de crédito.');
+        return;
+      }
+    }
+
     const numeroPedido = Math.floor(1000 + Math.random() * 9000);
 
     Alert.alert('Pedido Finalizado!', `Seu pedido foi confirmado com o número: #${numeroPedido}`, [{ text: 'OK' }]);
@@ -58,100 +68,128 @@ const Cart = () => {
   };
 
   const renderPaymentOption = (paymentMethod: string) => {
+    const isSelected = selectedPaymentMethod === paymentMethod;
+    const iconName = isSelected ? 'check-square' : 'square';
+    let paymentIcon = null;
+
     switch (paymentMethod) {
       case 'Dinheiro':
-        return (
-          <View style={styles.paymentOption}>
-            <FontAwesome name="money" size={24} color="green" />
-            <Text style={styles.paymentText}>Dinheiro</Text>
-          </View>
-        );
+        paymentIcon = <FontAwesome name="money" size={24} color="green" />;
+        break;
       case 'Pix':
-        return (
-          <View style={styles.paymentOption}>
-            <FontAwesome name="qrcode" size={24} color="blue" />
-            <Text style={styles.paymentText}>Pix</Text>
-          </View>
-        );
+        paymentIcon = <FontAwesome name="qrcode" size={24} color="blue" />;
+        break;
       case 'Cartão de Crédito':
-        return (
-          <View style={styles.paymentOption}>
-            <FontAwesome name="credit-card" size={24} color="red" />
-            <Text style={styles.paymentText}>Cartão de Crédito</Text>
-          </View>
-        );
+        paymentIcon = <FontAwesome name="credit-card" size={24} color="red" />;
+        break;
       default:
-        return null;
+        paymentIcon = null;
     }
+
+    return (
+      <View style={styles.paymentOption}>
+        <TouchableOpacity
+          style={styles.paymentOptionButton}
+          onPress={() => setSelectedPaymentMethod(paymentMethod)}
+        >
+          <FontAwesome name={iconName} size={24} color={isSelected ? 'green' : 'gray'} />
+          <Text style={styles.paymentText}>{paymentMethod}</Text>
+        </TouchableOpacity>
+        <View style={styles.iconContainer}>
+          {paymentIcon}
+        </View>
+      </View>
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* Exibindo o nome do usuário logado no título */}
-      <Text style={styles.title}>Seu Carrinho, {userName ? userName : 'Carregando...'}</Text>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={styles.title}>Seu Carrinho, {userName}</Text>
 
-      {cartItems.length === 0 ? (
-        <Text style={styles.emptyText}>Seu carrinho está vazio.</Text>
-      ) : (
-        <>
-          <FlatList
-            data={cartItems}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={styles.itemContainer}>
-                <View style={styles.itemInfo}>
-                  <Text style={styles.itemText}>{item.nome}</Text>
-                  <Text style={styles.itemPrice}>
-                    R$ {((item.quantidade || 1) * parsePrice(item.preco)).toFixed(2)}
-                  </Text>
+        {cartItems.length === 0 ? (
+          <Text style={styles.emptyText}>Seu carrinho está vazio.</Text>
+        ) : (
+          <>
+            <FlatList
+              data={cartItems}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.itemContainer}>
+                  <View style={styles.itemInfo}>
+                    <Text style={styles.itemText}>{item.nome}</Text>
+                    <Text style={styles.itemPrice}>
+                      R$ {((item.quantidade || 1) * parsePrice(item.preco)).toFixed(2)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.quantityContainer}>
+                    <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantidade - 1)} disabled={item.quantidade <= 1}>
+                      <FontAwesome name="minus-circle" size={24} color={item.quantidade > 1 ? "red" : "gray"} />
+                    </TouchableOpacity>
+
+                    <Text style={styles.quantityText}>{item.quantidade || 1}</Text>
+
+                    <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantidade + 1)}>
+                      <FontAwesome name="plus-circle" size={24} color="green" />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={() => handleRemoveItem(item.id)}>
+                      <FontAwesome name="trash" size={24} color="gray" style={styles.trashIcon} />
+                    </TouchableOpacity>
+                  </View>
                 </View>
+              )}
+            />
 
-                <View style={styles.quantityContainer}>
-                  <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantidade - 1)} disabled={item.quantidade <= 1}>
-                    <FontAwesome name="minus-circle" size={24} color={item.quantidade > 1 ? "red" : "gray"} />
-                  </TouchableOpacity>
+            <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
 
-                  <Text style={styles.quantityText}>{item.quantidade || 1}</Text>
+            <View style={styles.paymentMethodContainer}>
+              <Text style={styles.paymentMethodTitle}>Forma de pagamento</Text>
+              <View style={styles.paymentMethodOptions}>
+                {['Dinheiro', 'Pix', 'Cartão de Crédito'].map((paymentMethod) => (
+                  <View key={paymentMethod} style={styles.paymentOptionContainer}>
+                    {renderPaymentOption(paymentMethod)}
+                  </View>
+                ))}
+              </View>
+            </View>
 
-                  <TouchableOpacity onPress={() => updateQuantity(item.id, item.quantidade + 1)}>
-                    <FontAwesome name="plus-circle" size={24} color="green" />
-                  </TouchableOpacity>
-
-                  {/* Ícone de lixeira para remover o item */}
-                  <TouchableOpacity onPress={() => handleRemoveItem(item.id)}>
-                    <FontAwesome name="trash" size={24} color="gray" style={styles.trashIcon} />
-                  </TouchableOpacity>
-                </View>
+            {selectedPaymentMethod === 'Cartão de Crédito' && (
+              <View style={styles.cardInputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Número do Cartão"
+                  value={cardNumber}
+                  onChangeText={setCardNumber}
+                  keyboardType="numeric"
+                  maxLength={16}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Código de Segurança"
+                  value={securityCode}
+                  onChangeText={setSecurityCode}
+                  keyboardType="numeric"
+                  maxLength={3}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Data de Validade (MM/AA)"
+                  value={expiryDate}
+                  onChangeText={setExpiryDate}
+                  keyboardType="numeric"
+                  maxLength={5}
+                />
               </View>
             )}
-          />
+          </>
+        )}
+      </ScrollView>
 
-          <Text style={styles.totalText}>Total: R$ {total.toFixed(2)}</Text>
-
-          {/* Seção de seleção de forma de pagamento */}
-          <View style={styles.paymentMethodContainer}>
-            <Text style={styles.paymentMethodTitle}>Forma de pagamento</Text>
-            <View style={styles.paymentMethodOptions}>
-              {['Dinheiro', 'Pix', 'Cartão de Crédito'].map((paymentMethod) => (
-                <TouchableOpacity
-                  key={paymentMethod}
-                  style={styles.paymentMethodButton}
-                  onPress={() => setSelectedPaymentMethod(paymentMethod)}
-                >
-                  {renderPaymentOption(paymentMethod)}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
-          <Button title="Finalizar Pedido" color="green" onPress={finalizarPedido} />
-        </>
-      )}
-
-      {/* BOTÃO PARA VOLTAR PARA PEDIDOS - Sempre visível */}
-      <TouchableOpacity style={styles.voltarButton} onPress={() => router.push('/(tabs)/pedido')}>
-        <Text style={styles.voltarButtonText}>Voltar para Pedidos</Text>
-      </TouchableOpacity>
+      <View style={styles.finalizarButton}>
+        <Button title="Finalizar Pedido" color="green" onPress={finalizarPedido} />
+      </View>
     </View>
   );
 };
@@ -159,8 +197,11 @@ const Cart = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#fff',
+  },
+  scrollContainer: {
+    padding: 20,
+    paddingBottom: 80, // espaço para o botão no final
   },
   title: {
     fontSize: 24,
@@ -187,57 +228,72 @@ const styles = StyleSheet.create({
   },
   itemPrice: {
     fontSize: 16,
-    color: '#666',
+    color: 'gray',
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   quantityText: {
-    marginHorizontal: 10,
     fontSize: 18,
+    marginHorizontal: 10,
   },
   trashIcon: {
     marginLeft: 10,
   },
   totalText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     marginTop: 20,
+    textAlign: 'right',
   },
   paymentMethodContainer: {
     marginTop: 20,
   },
   paymentMethodTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   paymentMethodOptions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    flexDirection: 'column',
+    marginBottom: 20,
   },
-  paymentMethodButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  paymentOptionContainer: {
+    marginBottom: 10,
   },
   paymentOption: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 10,
   },
-  paymentText: {
-    marginLeft: 10,
-    fontSize: 16,
-  },
-  voltarButton: {
-    marginTop: 20,
-    backgroundColor: '#f0f0f0',
-    padding: 10,
+  paymentOptionButton: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  voltarButtonText: {
+  paymentText: {
     fontSize: 16,
-    color: '#000',
+    marginLeft: 10,
+  },
+  iconContainer: {
+    marginLeft: 10,
+  },
+  cardInputContainer: {
+    marginTop: 20,
+  },
+  input: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    padding: 8,
+    marginVertical: 10,
+    fontSize: 16,
+  },
+  finalizarButton: {
+    position: 'relative',
+    bottom: 10,
+    left: 20,
+    right: 20,
+    padding: 60,
   },
 });
 
